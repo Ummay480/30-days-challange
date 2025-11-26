@@ -1,0 +1,4 @@
+chainlit>=2.9.2
+openai-agents>=0.6.1
+python-dotenv>=1.2.1
+pypdf>=4.0.0

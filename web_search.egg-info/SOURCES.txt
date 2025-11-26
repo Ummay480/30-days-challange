@@ -1,0 +1,8 @@
+README.md
+main.py
+pyproject.toml
+web_search.egg-info/PKG-INFO
+web_search.egg-info/SOURCES.txt
+web_search.egg-info/dependency_links.txt
+web_search.egg-info/requires.txt
+web_search.egg-info/top_level.txt

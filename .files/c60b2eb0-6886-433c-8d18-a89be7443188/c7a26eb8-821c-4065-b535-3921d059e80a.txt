@@ -1,0 +1,3 @@
+give me "Add To Cart functionality " and checkout ' COMPLETE PROCESS "npm i react-use-cart 
+and checkout functionality  nextjs15 Project with tailwind and typeScript in 
+this is project we use "app" instead of "Pages" "src/app . create "file structure also
