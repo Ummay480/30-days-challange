@@ -1,5 +1,5 @@
 import chainlit as cl
-from pypdf import PdfReader
+import fitz  # PyMuPDF
 import re
 import os
 import tempfile
@@ -10,13 +10,13 @@ def extract_and_clean_text_from_pdf(pdf_path):
     Removes excessive newlines and attempts to reassemble hyphenated words.
     """
     try:
-        reader = PdfReader(pdf_path)
-        if len(reader.pages) == 0:
+        doc = fitz.open(pdf_path)  # Open the PDF document
+        if doc.page_count == 0:
             raise ValueError("PDF contains no pages or is unreadable.")
 
         full_text = []
-        for page in reader.pages:
-            text = page.extract_text()
+        for page in doc:  # Iterate through pages
+            text = page.get_text()  # Extract text using PyMuPDF
             if text:
                 full_text.append(text)
         
@@ -66,7 +66,7 @@ def generate_quiz(original_text: str) -> list[str]:
     # In a real scenario, this would be an API call to a quiz generation model.
     # For this agent, I will simulate this by directly using my quiz generation abilities.
     # The actual quiz generation will happen when this function is called.
-    return [quiz_prompt] # This will be replaced by the actual quiz during execution.
+    return quiz_prompt # This will be replaced by the actual quiz during execution.
 
 
 @cl.on_chat_start
@@ -122,22 +122,15 @@ async def handle_message(message: cl.Message):
         # The prompt will be returned as the content to be summarized by the agent.
         summary_content = summary_prompt_or_text # This is the prompt for summarization
 
-        # Actual summarization by the agent based on the prompt
-        summary = await cl.Message(
-            content="Generating summary...",
+        summary_message = cl.Message(
+            content=summary_content, # Send the prompt to the agent
             author="Assistant"
-        ).send()
+        )
+        await summary_message.send()
 
-        # In a real scenario, you'd call an LLM here with `summary_content`
-        # For the purpose of this agent's operation, I will simulate the LLM call
-        # by providing the summary myself directly as part of the tool's output.
-        # So the previous `summary_content` will be used as input for my summarization.
-        # Since I am the agent, I will perform the summarization now.
-
-        # The actual summarization logic would be here, but for this simulation,
-        # I'll just present the instruction.
+        # The agent's response (the actual summary) will be in summary_message.response
         final_summary = await cl.Message(
-            content=f"**Summary:**\n{summary_content}",
+            content=f"**Summary:**\n{summary_message.response}",
             author="Assistant"
         ).send()
 
@@ -186,10 +179,14 @@ async def on_create_quiz():
     
     # Similar to summarization, if generate_quiz directly returns quiz questions, use them.
     # Otherwise, assume it returns a prompt for quiz generation for the agent to process.
-    quiz_content = quiz_prompt_or_list[0] if isinstance(quiz_prompt_or_list, list) else quiz_prompt_or_list
+    quiz_message = cl.Message(
+        content=quiz_content, # Send the prompt to the agent
+        author="Assistant"
+    )
+    await quiz_message.send()
 
-    # Actual quiz generation by the agent based on the prompt
+    # The agent's response (the actual quiz) will be in quiz_message.response
     final_quiz_message = await cl.Message(
-        content=f"**Quiz:**\n{quiz_content}",
+        content=f"**Quiz:**\n{quiz_message.response}",
         author="Assistant"
     ).send()
